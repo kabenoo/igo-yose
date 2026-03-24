@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>囲碁ヨセ練習 9路盤</title>
+  <style>
+    :root {
+      --bg: #f7f7f7;
+      --panel: #ffffff;
+      --line: #333;
+      --sub: #666;
+      --accent: #1f6feb;
+      --danger: #c62828;
+      --ok: #2e7d32;
+      --board: #d9b36a;
+      --board-dark: #c79e53;
+      --dead: #e53935;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      background: var(--bg);
+      color: #111;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0 0 10px;
+    }
+    .subtext {
+      color: var(--sub);
+      font-size: 13px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 12px;
+      align-items: start;
+    }
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+    .board-panel {
+      padding: 10px;
+    }
+    .board-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: min(92vw, 720px);
+      margin: 0 auto;
+      position: relative;
+      touch-action: manipulation;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--board), var(--board-dark));
+    }
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .mode {
+      font-weight: 700;
+    }
+    .black { color: #111; }
+    .white { color: #555; }
+    .controls {
+      display: grid;
+      gap: 10px;
+    }
+    .group {
+      border: 1px solid #ececec;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .group-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .btn-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    button, input[type="number"], input[type="text"], select {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid #d8dee4;
+      font-size: 15px;
+      background: #fff;
+    }
+    button {
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:active { transform: translateY(1px); }
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .danger {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+    .ok {
+      background: var(--ok);
+      color: #fff;
+      border-color: var(--ok);
+    }
+    .muted {
+      background: #eef2f7;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    label {
+      font-size: 13px;
+      color: var(--sub);
+      display: block;
+      margin-bottom: 4px;
+    }
+    input[type="file"] {
+      width: 100%;
+      font-size: 14px;
+    }
+    .result {
+      margin-top: 8px;
+      padding: 10px;
+      background: #fafaf7;
+      border: 1px solid #ece8d9;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+    .small {
+      font-size: 12px;
+      color: var(--sub);
+      line-height: 1.5;
+    }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef2f7;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+    .footer-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--sub);
+      line-height: 1.6;
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .board-wrap { max-width: 96vw; }
+    }
+    @media (max-width: 480px) {
+      .wrap { padding: 8px; }
+      h1 { font-size: 18px; }
+      .btn-grid, .btn-grid.three { grid-template-columns: 1fr 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .panel { padding: 10px; }
+      .group { padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>囲碁ヨセ練習 9路盤</h1>
+  <div class="subtext">
+    スマホ対応版です。通常モードで着手、終局後は死石をクリック、判定実行で結果を表示します。<br>
+    問題番号読込は <span class="pill">sgf/001.sgf</span> のような配置を想定しています。
+  </div>
+
+  <div class="grid">
+    <div class="panel board-panel">
+      <div class="board-wrap">
+        <canvas id="boardCanvas" width="900" height="900"></canvas>
+      </div>
+      <div class="status" id="statusBox"></div>
+      <div class="result" id="resultBox">ここに結果が表示されます。</div>
+      <div class="footer-note">
+        修正方法：<br>
+        1. 「初期局面編集」を押す<br>
+        2. 盤をタップして <b>空 → 黒 → 白 → 空</b> を切替<br>
+        3. 「初期局面をSGF保存」で保存
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="panel group">
+        <div class="group-title">問題読込</div>
+        <label for="problemNo">問題番号（001〜100 など）</label>
+        <div class="row">
+          <input id="problemNo" type="text" inputmode="numeric" value="001" placeholder="001" />
+          <button class="primary" id="loadProblemBtn">番号で読込</button>
+        </div>
+        <div class="btn-grid three" style="margin-top:8px;">
+          <button id="prevProblemBtn">前</button>
+          <button id="nextProblemBtn">次</button>
+          <button id="randomProblemBtn">ランダム</button>
+        </div>
+        <div class="small" style="margin-top:8px;">GitHub では <b>sgf/001.sgf</b> 形式で置いてください。</div>
+      </div>
+
+      <div class="panel group">
+        <div class="group-title">SGF読込・保存</div>
+        <label for="sgfFile">手元のSGFを読込</label>
+        <input id="sgfFile" type="file" accept=".sgf" />
+        <div class="btn-grid" style="margin-top:8px;">
+          <button id="saveInitialBtn">初期局面をSGF保存</button>
+          <button id="saveCurrentBtn">現在局面をSGF保存</button>
+        </div>
+      </div>
+
+      <div class="panel group">
+        <div class="group-title">対局操作</div>
+        <div class="btn-grid">
+          <button id="undoBtn">1手戻る</button>
+          <button id="passBtn">パス</button>
+          <button class="danger" id="endBtn">終局</button>
+          <button id="resetBtn">初期局面に戻す</button>
+        </div>
+      </div>
+
+      <div class="panel group">
+        <div class="group-title">判定・編集</div>
+        <div class="btn-grid">
+          <button class="ok" id="scoreBtn">判定実行</button>
+          <button id="deadModeBtn">死石選択</button>
+          <button id="editModeBtn">初期局面編集</button>
+          <button class="muted" id="normalModeBtn">通常モード</button>
+        </div>
+        <div class="small" style="margin-top:8px;">
+          死石選択：終局後に死石をタップ。もう一度で解除。<br>
+          コウ：直前局面へ即時に戻る手を禁止しています。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const SIZE = 9;
+  const EMPTY = 0, BLACK = 1, WHITE = 2;
+  const MODE_NORMAL = 'normal';
+  const MODE_DEAD = 'dead';
+  const MODE_EDIT = 'edit';
+
+  const canvas = document.getElementById('boardCanvas');
+  const ctx = canvas.getContext('2d');
+  const statusBox = document.getElementById('statusBox');
+  const resultBox = document.getElementById('resultBox');
+  const problemNo = document.getElementById('problemNo');
+
+  const state = {
+    initialBoard: createEmptyBoard(),
+    board: createEmptyBoard(),
+    toMove: BLACK,
+    moveHistory: [],
+    mode: MODE_NORMAL,
+    gameEnded: false,
+    deadStones: new Set(),
+    problemName: '未読込',
+  };
+
+  function createEmptyBoard() {
+    return Array.from({ length: SIZE }, () => Array(SIZE).fill(EMPTY));
+  }
+  function cloneBoard(board) { return board.map(r => [...r]); }
+  function boardKey(board) { return board.map(r => r.join('')).join('|'); }
+  function inBounds(x, y) { return x >= 0 && x < SIZE && y >= 0 && y < SIZE; }
+  function other(color) { return color === BLACK ? WHITE : BLACK; }
+  function stoneKey(x, y) { return `${x},${y}`; }
+  function parseStoneKey(key) { const [x, y] = key.split(',').map(Number); return { x, y }; }
+  function pad3(v) { return String(v).padStart(3, '0'); }
+
+  function neighbors(x, y) {
+    return [[x+1,y],[x-1,y],[x,y+1],[x,y-1]].filter(([nx,ny]) => inBounds(nx,ny));
+  }
+
+  function groupAndLiberties(board, x, y) {
+    const color = board[y][x];
+    if (!color) return null;
+    const stack = [[x, y]];
+    const visited = new Set([stoneKey(x, y)]);
+    const group = [];
+    const liberties = new Set();
+    while (stack.length) {
+      const [cx, cy] = stack.pop();
+      group.push([cx, cy]);
+      for (const [nx, ny] of neighbors(cx, cy)) {
+        const v = board[ny][nx];
+        const k = stoneKey(nx, ny);
+        if (v === EMPTY) liberties.add(k);
+        else if (v === color && !visited.has(k)) {
+          visited.add(k);
+          stack.push([nx, ny]);
+        }
+      }
+    }
+    return { color, group, liberties };
+  }
+
+  function removeGroup(board, group) {
+    for (const [x, y] of group) board[y][x] = EMPTY;
+  }
+
+  function placeStone(x, y) {
+    if (!inBounds(x, y)) return { ok: false, message: '範囲外です。' };
+    if (state.board[y][x] !== EMPTY) return { ok: false, message: 'その点には打てません。' };
+    if (state.gameEnded) return { ok: false, message: '終局後です。死石選択または初期局面に戻してください。' };
+
+    const beforeBoard = cloneBoard(state.board);
+    const beforeToMove = state.toMove;
+    const prevKey = state.moveHistory.length ? state.moveHistory[state.moveHistory.length - 1].beforeKey : null;
+
+    const board = cloneBoard(state.board);
+    board[y][x] = state.toMove;
+    let captured = [];
+
+    for (const [nx, ny] of neighbors(x, y)) {
+      if (board[ny][nx] === other(state.toMove)) {
+        const info = groupAndLiberties(board, nx, ny);
+        if (info && info.liberties.size === 0) {
+          captured.push(...info.group);
+          removeGroup(board, info.group);
+        }
+      }
+    }
+
+    const selfInfo = groupAndLiberties(board, x, y);
+    if (!selfInfo || selfInfo.liberties.size === 0) {
+      return { ok: false, message: '自殺手です。' };
+    }
+
+    // basic ko: immediate return to previous position is forbidden
+    const newKey = boardKey(board);
+    if (prevKey && newKey === prevKey) {
+      return { ok: false, message: 'コウです。すぐには抜き返せません。' };
+    }
+
+    state.moveHistory.push({
+      beforeBoard,
+      beforeToMove,
+      beforeKey: boardKey(beforeBoard),
+      x, y,
+      captured,
+      type: 'move'
+    });
+    state.board = board;
+    state.toMove = other(state.toMove);
+    state.deadStones.clear();
+    resultBox.textContent = '着手しました。';
+    draw();
+    return { ok: true, message: '着手しました。' };
+  }
+
+  function passMove() {
+    if (state.gameEnded) {
+      flash('終局後です。');
+      return;
+    }
+    state.moveHistory.push({
+      beforeBoard: cloneBoard(state.board),
+      beforeToMove: state.toMove,
+      beforeKey: boardKey(state.board),
+      type: 'pass'
+    });
+    state.toMove = other(state.toMove);
+    resultBox.textContent = 'パスしました。';
+    draw();
+  }
+
+  function undo() {
+    const last = state.moveHistory.pop();
+    if (!last) {
+      flash('これ以上戻せません。');
+      return;
+    }
+    state.board = cloneBoard(last.beforeBoard);
+    state.toMove = last.beforeToMove;
+    state.gameEnded = false;
+    state.mode = MODE_NORMAL;
+    state.deadStones.clear();
+    resultBox.textContent = '1手戻しました。';
+    draw();
+  }
+
+  function resetToInitial() {
+    state.board = cloneBoard(state.initialBoard);
+    state.toMove = BLACK;
+    state.moveHistory = [];
+    state.mode = MODE_NORMAL;
+    state.gameEnded = false;
+    state.deadStones.clear();
+    resultBox.textContent = '初期局面に戻しました。';
+    draw();
+  }
+
+  function endGame() {
+    state.gameEnded = true;
+    state.mode = MODE_DEAD;
+    resultBox.textContent = '終局しました。死石をタップしてから「判定実行」を押してください。';
+    draw();
+  }
+
+  function toggleDeadStone(x, y) {
+    const stone = state.board[y][x];
+    if (stone === EMPTY) return;
+    const k = stoneKey(x, y);
+    if (state.deadStones.has(k)) state.deadStones.delete(k);
+    else state.deadStones.add(k);
+    draw();
+  }
+
+  function cycleEditPoint(x, y) {
+    const cur = state.initialBoard[y][x];
+    let next = EMPTY;
+    if (cur === EMPTY) next = BLACK;
+    else if (cur === BLACK) next = WHITE;
+    else next = EMPTY;
+    state.initialBoard[y][x] = next;
+    state.board = cloneBoard(state.initialBoard);
+    state.toMove = BLACK;
+    state.moveHistory = [];
+    state.gameEnded = false;
+    state.deadStones.clear();
+    resultBox.textContent = '初期局面を編集しました。';
+    draw();
+  }
+
+  function scoreGame() {
+    const board = cloneBoard(state.board);
+
+    for (const k of state.deadStones) {
+      const { x, y } = parseStoneKey(k);
+      board[y][x] = EMPTY;
+    }
+
+    let blackStones = 0, whiteStones = 0;
+    for (let y = 0; y < SIZE; y++) {
+      for (let x = 0; x < SIZE; x++) {
+        if (board[y][x] === BLACK) blackStones++;
+        else if (board[y][x] === WHITE) whiteStones++;
+      }
+    }
+
+    const visited = new Set();
+    let blackTerritory = 0, whiteTerritory = 0, neutral = 0;
+
+    for (let y = 0; y < SIZE; y++) {
+      for (let x = 0; x < SIZE; x++) {
+        const k = stoneKey(x, y);
+        if (board[y][x] !== EMPTY || visited.has(k)) continue;
+
+        const queue = [[x, y]];
+        visited.add(k);
+        const empties = [[x, y]];
+        const borders = new Set();
+
+        while (queue.length) {
+          const [cx, cy] = queue.shift();
+          for (const [nx, ny] of neighbors(cx, cy)) {
+            const v = board[ny][nx];
+            const nk = stoneKey(nx, ny);
+            if (v === EMPTY) {
+              if (!visited.has(nk)) {
+                visited.add(nk);
+                queue.push([nx, ny]);
+                empties.push([nx, ny]);
+              }
+            } else {
+              borders.add(v);
+            }
+          }
+        }
+
+        if (borders.size === 1) {
+          if (borders.has(BLACK)) blackTerritory += empties.length;
+          else if (borders.has(WHITE)) whiteTerritory += empties.length;
+        } else {
+          neutral += empties.length;
+        }
+      }
+    }
+
+    const blackTotal = blackStones + blackTerritory;
+    const whiteTotal = whiteStones + whiteTerritory;
+    const diff = blackTotal - whiteTotal;
+    let verdict = '持碁';
+    if (diff > 0) verdict = `黒 ${diff}目勝ち`;
+    else if (diff < 0) verdict = `白 ${Math.abs(diff)}目勝ち`;
+
+    resultBox.textContent =
+      `黒地 ${blackTerritory}目\n` +
+      `白地 ${whiteTerritory}目\n` +
+      `黒生石 ${blackStones}\n` +
+      `白生石 ${whiteStones}\n` +
+      `黒合計 ${blackTotal}\n` +
+      `白合計 ${whiteTotal}\n` +
+      `${verdict}`;
+  }
+
+  function draw() {
+    resizeCanvasForDPR();
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const margin = Math.round(w * 0.085);
+    const span = (w - margin * 2) / (SIZE - 1);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = '#2d2418';
+    ctx.lineWidth = Math.max(2, w / 350);
+    for (let i = 0; i < SIZE; i++) {
+      const p = margin + i * span;
+      ctx.beginPath();
+      ctx.moveTo(margin, p);
+      ctx.lineTo(w - margin, p);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p, margin);
+      ctx.lineTo(p, h - margin);
+      ctx.stroke();
+    }
+
+    const star = [2, 4, 6];
+    for (const sx of star) {
+      for (const sy of star) {
+        if ((sx === 2 || sx === 6) && (sy === 2 || sy === 6) || (sx === 4 && sy === 4)) {
+          const cx = margin + sx * span;
+          const cy = margin + sy * span;
+          ctx.beginPath();
+          ctx.arc(cx, cy, Math.max(5, w / 120), 0, Math.PI * 2);
+          ctx.fillStyle = '#2d2418';
+          ctx.fill();
+        }
+      }
+    }
+
+    for (let y = 0; y < SIZE; y++) {
+      for (let x = 0; x < SIZE; x++) {
+        const stone = state.board[y][x];
+        if (stone === EMPTY) continue;
+        const cx = margin + x * span;
+        const cy = margin + y * span;
+        const r = span * 0.43;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        if (stone === BLACK) {
+          const grad = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r);
+          grad.addColorStop(0, '#555');
+          grad.addColorStop(1, '#000');
+          ctx.fillStyle = grad;
+        } else {
+          const grad = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r);
+          grad.addColorStop(0, '#fff');
+          grad.addColorStop(1, '#d9d9d9');
+          ctx.fillStyle = grad;
+        }
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,.25)';
+        ctx.lineWidth = Math.max(1.2, w / 700);
+        ctx.stroke();
+
+        if (state.deadStones.has(stoneKey(x, y))) {
+          ctx.strokeStyle = '#e53935';
+          ctx.lineWidth = Math.max(4, w / 160);
+          ctx.beginPath();
+          ctx.moveTo(cx - r*0.62, cy - r*0.62);
+          ctx.lineTo(cx + r*0.62, cy + r*0.62);
+          ctx.moveTo(cx + r*0.62, cy - r*0.62);
+          ctx.lineTo(cx - r*0.62, cy + r*0.62);
+          ctx.stroke();
+        }
+      }
+    }
+
+    updateStatus();
+  }
+
+  function resizeCanvasForDPR() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const width = Math.round(rect.width * dpr);
+    const height = Math.round(rect.height * dpr);
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+  }
+
+  function updateStatus() {
+    const modeText = state.mode === MODE_NORMAL ? '通常モード' : state.mode === MODE_DEAD ? '死石選択モード' : '初期局面編集モード';
+    const turnText = state.toMove === BLACK ? '黒番' : '白番';
+    const endedText = state.gameEnded ? '終局済み' : '対局中';
+    statusBox.innerHTML =
+      `<span class="mode">${modeText}</span><br>` +
+      `問題: ${state.problemName}<br>` +
+      `状態: ${endedText}<br>` +
+      `手番: <span class="${state.toMove === BLACK ? 'black' : 'white'}">${turnText}</span><br>` +
+      `手数: ${state.moveHistory.filter(m => m.type === 'move').length}手`;
+  }
+
+  function flash(msg) {
+    resultBox.textContent = msg;
+  }
+
+  function getIntersectionFromEvent(ev) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    const margin = rect.width * 0.085;
+    const span = (rect.width - margin * 2) / (SIZE - 1);
+    const ix = Math.round((x - margin) / span);
+    const iy = Math.round((y - margin) / span);
+    if (!inBounds(ix, iy)) return null;
+    const cx = margin + ix * span;
+    const cy = margin + iy * span;
+    const dist = Math.hypot(x - cx, y - cy);
+    if (dist > span * 0.52) return null;
+    return { x: ix, y: iy };
+  }
+
+  function handleBoardTap(ev) {
+    ev.preventDefault();
+    const p = getIntersectionFromEvent(ev);
+    if (!p) return;
+
+    if (state.mode === MODE_EDIT) {
+      cycleEditPoint(p.x, p.y);
+      return;
+    }
+    if (state.mode === MODE_DEAD) {
+      toggleDeadStone(p.x, p.y);
+      return;
+    }
+    const res = placeStone(p.x, p.y);
+    flash(res.message);
+  }
+
+  function sgfCoordToXY(coord) {
+    if (!coord || coord.length < 2) return null;
+    return { x: coord.charCodeAt(0) - 97, y: coord.charCodeAt(1) - 97 };
+  }
+  function xyToSgfCoord(x, y) {
+    return String.fromCharCode(97 + x) + String.fromCharCode(97 + y);
+  }
+
+  function loadSgfText(text, name = '読込局面') {
+    const board = createEmptyBoard();
+    const abMatches = [...text.matchAll(/AB((\[[a-i]{2}\])+)/g)];
+    const awMatches = [...text.matchAll(/AW((\[[a-i]{2}\])+)/g)];
+    const parseMulti = (matches, color) => {
+      for (const m of matches) {
+        const coords = [...m[1].matchAll(/\[([a-i]{2})\]/g)].map(v => v[1]);
+        for (const c of coords) {
+          const p = sgfCoordToXY(c);
+          if (p && inBounds(p.x, p.y)) board[p.y][p.x] = color;
+        }
+      }
+    };
+    parseMulti(abMatches, BLACK);
+    parseMulti(awMatches, WHITE);
+
+    // move sequence, if any
+    const seq = [...text.matchAll(/;([BW])\[([a-i]{0,2})\]/g)];
+    state.initialBoard = board;
+    state.board = cloneBoard(board);
+    state.toMove = /PL\[W\]/.test(text) ? WHITE : BLACK;
+    state.moveHistory = [];
+    state.mode = MODE_NORMAL;
+    state.gameEnded = false;
+    state.deadStones.clear();
+    state.problemName = name;
+
+    for (const m of seq) {
+      const color = m[1] === 'B' ? BLACK : WHITE;
+      const coord = m[2];
+      state.toMove = color;
+      if (coord === '') {
+        passMove();
+      } else {
+        const p = sgfCoordToXY(coord);
+        if (p) placeStone(p.x, p.y);
+      }
+    }
+
+    state.mode = MODE_NORMAL;
+    state.gameEnded = false;
+    state.deadStones.clear();
+    resultBox.textContent = `${name} を読み込みました。`;
+    draw();
+  }
+
+  function boardToSgf(board, name = 'position') {
+    const blacks = [];
+    const whites = [];
+    for (let y = 0; y < SIZE; y++) {
+      for (let x = 0; x < SIZE; x++) {
+        if (board[y][x] === BLACK) blacks.push(`[${xyToSgfCoord(x,y)}]`);
+        else if (board[y][x] === WHITE) whites.push(`[${xyToSgfCoord(x,y)}]`);
+      }
+    }
+    return `(;GM[1]FF[4]CA[UTF-8]AP[ChatGPT:YosePractice]SZ[9]PB[Black]PW[White]GN[${name}]PL[B]\n` +
+           `AB${blacks.join('')}\n` +
+           `AW${whites.join('')}\n)`;
+  }
+
+  function downloadText(filename, text) {
+    const blob = new Blob([text], { type: 'application/x-go-sgf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function loadProblemByNumber(noText) {
+    const no = pad3(Number(noText));
+    if (!/^\d{3}$/.test(no)) {
+      flash('問題番号は 001 のように入力してください。');
+      return;
+    }
+    const path = `sgf/${no}.sgf`;
+    try {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) throw new Error('not found');
+      const text = await res.text();
+      problemNo.value = no;
+      loadSgfText(text, `${no}.sgf`);
+    } catch (e) {
+      flash(`${path} を読み込めませんでした。GitHubに配置されているか確認してください。`);
+    }
+  }
+
+  document.getElementById('loadProblemBtn').addEventListener('click', () => loadProblemByNumber(problemNo.value));
+  document.getElementById('prevProblemBtn').addEventListener('click', () => {
+    const v = Math.max(1, (parseInt(problemNo.value || '1', 10) || 1) - 1);
+    loadProblemByNumber(v);
+  });
+  document.getElementById('nextProblemBtn').addEventListener('click', () => {
+    const v = Math.min(999, (parseInt(problemNo.value || '1', 10) || 1) + 1);
+    loadProblemByNumber(v);
+  });
+  document.getElementById('randomProblemBtn').addEventListener('click', () => {
+    const v = Math.floor(Math.random() * 100) + 1;
+    loadProblemByNumber(v);
+  });
+
+  document.getElementById('sgfFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => loadSgfText(reader.result, file.name);
+    reader.readAsText(file, 'UTF-8');
+  });
+
+  document.getElementById('undoBtn').addEventListener('click', undo);
+  document.getElementById('passBtn').addEventListener('click', passMove);
+  document.getElementById('endBtn').addEventListener('click', endGame);
+  document.getElementById('resetBtn').addEventListener('click', resetToInitial);
+  document.getElementById('scoreBtn').addEventListener('click', scoreGame);
+  document.getElementById('deadModeBtn').addEventListener('click', () => { state.mode = MODE_DEAD; draw(); });
+  document.getElementById('editModeBtn').addEventListener('click', () => { state.mode = MODE_EDIT; state.gameEnded = false; draw(); });
+  document.getElementById('normalModeBtn').addEventListener('click', () => { state.mode = MODE_NORMAL; draw(); });
+  document.getElementById('saveInitialBtn').addEventListener('click', () => {
+    downloadText((state.problemName || 'initial').replace(/\.[^.]+$/, '') + '_initial.sgf', boardToSgf(state.initialBoard, 'initial'));
+  });
+  document.getElementById('saveCurrentBtn').addEventListener('click', () => {
+    downloadText((state.problemName || 'current').replace(/\.[^.]+$/, '') + '_current.sgf', boardToSgf(state.board, 'current'));
+  });
+
+  canvas.addEventListener('click', handleBoardTap);
+  canvas.addEventListener('touchstart', handleBoardTap, { passive: false });
+  window.addEventListener('resize', draw);
+
+  // initial sample empty board
+  draw();
+})();
+</script>
+</body>
+</html>
