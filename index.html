@@ -151,23 +151,25 @@
     }
     .bottom{
       display:grid;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns:.8fr 1.2fr;
       gap:10px;
       align-items:start;
     }
     .resultBox{
-      min-height:46px;
-      border-radius:14px;
+      min-height:100px;
+      border-radius:16px;
       border:1px solid #ddd4c4;
-      background:#f3efe6;
+      background:linear-gradient(180deg,#fffdf8,#f1eadc);
       display:flex;
       align-items:center;
       justify-content:center;
       font-weight:900;
-      font-size:22px;
+      font-size:34px;
       color:#382d1e;
-      padding:10px 12px;
+      padding:14px 16px;
       text-align:center;
+      letter-spacing:.03em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
     }
     .hidden{display:none}
     input[type=file]{display:none}
@@ -184,7 +186,7 @@
       .label{min-height:28px;border-radius:12px;font-size:14px}
       .boardCard{padding:8px 4px}
       .board-wrap{max-width:min(98vw, 560px);}
-      .resultBox{font-size:18px; min-height:42px;}
+      .resultBox{font-size:26px; min-height:84px;}
     }
   </style>
 </head>
@@ -200,10 +202,6 @@
 
     <div class="card stack">
       <button class="btnBlue" id="loadRandomBtn">問題読込</button>
-      <div class="btnGrid2">
-        <button class="btnPlain" id="prevProblemBtn">前へ</button>
-        <button class="btnPlain" id="nextProblemBtn">次へ</button>
-      </div>
     </div>
 
     <div class="card stack">
@@ -221,12 +219,9 @@
 
   <div class="bottom">
     <div class="card stack">
-      <button class="btnPlain" id="saveKifuBtn">棋譜保存</button>
-      <button class="btnRed" id="makeProblemBtn">問題作成</button>
-      <input id="sgfFile" type="file" accept=".sgf" />
+      <button class="btnGreen" id="scoreBtn">判定</button>
     </div>
     <div class="card stack">
-      <button class="btnGreen" id="scoreBtn">判定</button>
       <div class="resultBox" id="resultBox">結果</div>
     </div>
   </div>
@@ -238,12 +233,10 @@
   const EMPTY = 0, BLACK = 1, WHITE = 2;
   const MODE_NORMAL = 'normal';
   const MODE_DEAD = 'dead';
-  const MODE_EDIT = 'edit';
 
   const canvas = document.getElementById('boardCanvas');
   const ctx = canvas.getContext('2d');
   const resultBox = document.getElementById('resultBox');
-  const sgfFileInput = document.getElementById('sgfFile');
 
   const state = {
     initialBoard: createEmptyBoard(),
@@ -254,8 +247,6 @@
     deadStones: new Set(),
     problemNumbers: Array.from({length:100}, (_,i)=>i+1),
     currentProblemNo: null,
-    editModeActive: false,
-    problemEditSaved: false,
     lastMoveColor: null
   };
 
@@ -351,7 +342,7 @@
     state.board = cloneBoard(last.beforeBoard);
     state.toMove = last.beforeToMove;
     state.deadStones.clear();
-    state.mode = state.editModeActive ? MODE_EDIT : MODE_NORMAL;
+    state.mode = MODE_NORMAL;
     state.lastMoveColor = state.moveHistory.length ? (state.moveHistory[state.moveHistory.length - 1].beforeToMove === BLACK ? WHITE : BLACK) : null;
     draw();
   }
@@ -365,20 +356,6 @@
     draw();
   }
 
-  function cycleEditPoint(x, y) {
-    const cur = state.initialBoard[y][x];
-    let next = EMPTY;
-    if (cur === EMPTY) next = BLACK;
-    else if (cur === BLACK) next = WHITE;
-    else next = EMPTY;
-    state.initialBoard[y][x] = next;
-    state.board = cloneBoard(state.initialBoard);
-    state.toMove = BLACK;
-    state.moveHistory = [];
-    state.deadStones.clear();
-    state.lastMoveColor = null;
-    draw();
-  }
 
   function scoreGame() {
     const board = cloneBoard(state.board);
@@ -561,10 +538,6 @@
     const p = getIntersectionFromEvent(ev);
     if (!p) return;
 
-    if (state.mode === MODE_EDIT) {
-      cycleEditPoint(p.x, p.y);
-      return;
-    }
     if (state.mode === MODE_DEAD) {
       toggleDeadStone(p.x, p.y);
       return;
@@ -605,56 +578,11 @@
     state.mode = MODE_NORMAL;
     state.deadStones.clear();
     state.lastMoveColor = null;
-    state.editModeActive = false;
-    state.problemEditSaved = false;
-    document.getElementById('makeProblemBtn').textContent = '問題作成';
     draw();
   }
 
-  function buildCurrentGameSgf(name='kifu') {
-    let sgf = `(;GM[1]FF[4]CA[UTF-8]AP[ChatGPT:YosePractice]SZ[9]GN[${name}]PL[B]\n`;
-    const blacks = [];
-    const whites = [];
-    for (let y = 0; y < SIZE; y++) {
-      for (let x = 0; x < SIZE; x++) {
-        if (state.initialBoard[y][x] === BLACK) blacks.push(`[${xyToSgfCoord(x,y)}]`);
-        if (state.initialBoard[y][x] === WHITE) whites.push(`[${xyToSgfCoord(x,y)}]`);
-      }
-    }
-    sgf += `AB${blacks.join('')}\nAW${whites.join('')}\n`;
-    for (const m of state.moveHistory) {
-      if (m.type === 'move') {
-        const color = m.beforeToMove === BLACK ? 'B' : 'W';
-        sgf += `;${color}[${xyToSgfCoord(m.x,m.y)}]\n`;
-      }
-    }
-    sgf += ')';
-    return sgf;
-  }
 
-  function boardToSgf(board, name='problem') {
-    const blacks = [];
-    const whites = [];
-    for (let y = 0; y < SIZE; y++) {
-      for (let x = 0; x < SIZE; x++) {
-        if (board[y][x] === BLACK) blacks.push(`[${xyToSgfCoord(x,y)}]`);
-        else if (board[y][x] === WHITE) whites.push(`[${xyToSgfCoord(x,y)}]`);
-      }
-    }
-    return `(;GM[1]FF[4]CA[UTF-8]AP[ChatGPT:YosePractice]SZ[9]GN[${name}]PL[B]\nAB${blacks.join('')}\nAW${whites.join('')}\n)`;
-  }
 
-  function downloadText(filename, text) {
-    const blob = new Blob([text], { type: 'application/x-go-sgf' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
 
   async function loadProblem(no) {
     const num = String(no).padStart(3, '0');
@@ -678,51 +606,11 @@
   document.getElementById('loadRandomBtn').addEventListener('click', () => {
     loadProblem(randomProblemNo());
   });
-  document.getElementById('prevProblemBtn').addEventListener('click', () => {
-    const cur = state.currentProblemNo || 1;
-    loadProblem(Math.max(1, cur - 1));
-  });
-  document.getElementById('nextProblemBtn').addEventListener('click', () => {
-    const cur = state.currentProblemNo || 1;
-    loadProblem(Math.min(999, cur + 1));
-  });
   document.getElementById('undoBtn').addEventListener('click', undo);
   document.getElementById('deadModeBtn').addEventListener('click', () => {
     state.mode = state.mode === MODE_DEAD ? MODE_NORMAL : MODE_DEAD;
   });
   document.getElementById('scoreBtn').addEventListener('click', scoreGame);
-  document.getElementById('saveKifuBtn').addEventListener('click', () => {
-    downloadText(`kifu_${Date.now()}.sgf`, buildCurrentGameSgf('kifu'));
-  });
-  document.getElementById('makeProblemBtn').addEventListener('click', () => {
-    const btn = document.getElementById('makeProblemBtn');
-    if (!state.editModeActive) {
-      state.editModeActive = true;
-      state.mode = MODE_EDIT;
-      state.initialBoard = cloneBoard(state.board);
-      state.moveHistory = [];
-      state.deadStones.clear();
-      state.lastMoveColor = null;
-      btn.textContent = '問題保存';
-      resultBox.textContent = '作成モード';
-      draw();
-      return;
-    }
-    downloadText(`problem_${Date.now()}.sgf`, boardToSgf(state.initialBoard, 'problem'));
-    state.editModeActive = false;
-    state.mode = MODE_NORMAL;
-    btn.textContent = '問題作成';
-    resultBox.textContent = '問題保存完了';
-  });
-
-  sgfFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => loadSgfText(reader.result);
-    reader.readAsText(file, 'UTF-8');
-  });
-
   canvas.addEventListener('click', handleBoardTap);
   canvas.addEventListener('touchstart', handleBoardTap, { passive: false });
   window.addEventListener('resize', draw);
