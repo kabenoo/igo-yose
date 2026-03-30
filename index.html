@@ -7,17 +7,18 @@
   <style>
     :root{
       --bg:#f2efe8;
-      --panel:#ffffff;
-      --line:#333;
-      --sub:#666;
-      --accent:#3867d6;
-      --accent2:#2856c7;
-      --danger:#d44234;
-      --ok:#3da35a;
+      --card:#fffdf8;
+      --line:#2d2418;
+      --panel-border:#dfd7c8;
       --board:#d9b36a;
       --board-dark:#c79e53;
+      --blue1:#5a85ec;
+      --blue2:#2f60d9;
+      --green1:#49ab64;
+      --green2:#369852;
+      --plain:#e8dfcf;
       --shadow:0 2px 10px rgba(0,0,0,.08);
-      --radius:16px;
+      --radius:18px;
     }
     *{box-sizing:border-box}
     body{
@@ -29,46 +30,46 @@
     .app{
       max-width:980px;
       margin:0 auto;
-      padding:10px;
+      padding:4px;
     }
     .top{
       display:grid;
-      grid-template-columns: 1.2fr .9fr .9fr;
-      gap:10px;
-      margin-bottom:10px;
+      grid-template-columns:1.18fr .82fr .82fr;
+      gap:5px;
+      margin-bottom:5px;
     }
     .card{
-      background:rgba(255,255,255,.72);
-      border:1px solid #dfd7c8;
-      border-radius:20px;
+      background:rgba(255,253,248,.84);
+      border:1px solid var(--panel-border);
+      border-radius:18px;
       box-shadow:var(--shadow);
-      padding:8px;
+      padding:5px;
     }
     .titleBox{
-      min-height:106px;
+      min-height:72px;
       display:flex;
       align-items:center;
       justify-content:flex-start;
-      padding:18px 24px;
+      padding:8px 10px;
       background:
-        radial-gradient(circle at 18% 50%, rgba(205,241,215,.55), transparent 28%),
-        radial-gradient(circle at 85% 22%, rgba(196,217,255,.5), transparent 24%),
-        linear-gradient(180deg, rgba(255,255,255,.86), rgba(248,245,239,.9));
+        radial-gradient(circle at 18% 52%, rgba(205,241,215,.45), transparent 30%),
+        radial-gradient(circle at 85% 22%, rgba(196,217,255,.35), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.9), rgba(248,245,239,.96));
     }
     .appTitle{
       display:inline-flex;
       align-items:center;
-      gap:10px;
+      gap:5px;
       font-weight:900;
-      font-size:clamp(26px,4.5vw,44px);
-      letter-spacing:.04em;
+      font-size:clamp(16px,6.3vw,30px);
       line-height:1;
-      padding:12px 18px;
+      letter-spacing:.04em;
+      padding:7px 10px;
       border-radius:999px;
-      background:rgba(255,255,255,.68);
+      background:rgba(255,255,255,.72);
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.92),
-        0 10px 24px rgba(0,0,0,.08);
+        inset 0 1px 0 rgba(255,255,255,.95),
+        0 8px 18px rgba(0,0,0,.07);
     }
     .titleGreen,.titleBlue{
       display:inline-block;
@@ -76,9 +77,8 @@
       background-clip:text;
       color:transparent;
       text-shadow:
-        0 1px 0 rgba(255,255,255,.85),
-        0 3px 10px rgba(0,0,0,.10);
-      filter:drop-shadow(0 1px 0 rgba(255,255,255,.75));
+        0 1px 0 rgba(255,255,255,.9),
+        0 2px 8px rgba(0,0,0,.10);
     }
     .titleGreen{
       background-image:linear-gradient(180deg,#36a763 0%,#158148 55%,#0a6a38 100%);
@@ -86,58 +86,46 @@
     .titleBlue{
       background-image:linear-gradient(180deg,#4e89ff 0%,#2c63dd 55%,#1f4fb8 100%);
     }
-    .stack{display:grid; gap:8px;}
-    .label{
-      min-height:30px;
-      border-radius:14px;
-      border:1px solid #ddd4c4;
-      background:#e8dfcf;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:800;
-      color:#4b3f2d;
-    }
-    .btnGrid2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
-    .btnGrid1{display:grid; gap:8px;}
+    .stack{display:grid;gap:5px}
     button{
       width:100%;
-      min-height:46px;
+      min-height:36px;
       border:none;
-      border-radius:14px;
-      font-size:16px;
+      border-radius:13px;
+      font-size:14px;
       font-weight:900;
       cursor:pointer;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+      -webkit-tap-highlight-color: transparent;
     }
     .btnBlue{
-      background:linear-gradient(180deg,#5a85ec,#2f60d9);
+      background:linear-gradient(180deg,var(--blue1),var(--blue2));
       color:#fff;
     }
     .btnPlain{
-      background:#e8dfcf;
+      background:var(--plain);
       color:#2a2115;
     }
     .btnGreen{
-      background:linear-gradient(180deg,#49ab64,#369852);
+      background:linear-gradient(180deg,var(--green1),var(--green2));
       color:#fff;
     }
-    .btnRed{
-      background:linear-gradient(180deg,#e05647,#cf3b2d);
-      color:#fff;
+    .btnActive{
+      outline:3px solid rgba(211,56,56,.22);
+      background:#efe3d5;
     }
     .boardCard{
-      background:rgba(255,255,255,.72);
-      border:1px solid #dfd7c8;
-      border-radius:20px;
+      background:rgba(255,253,248,.84);
+      border:1px solid var(--panel-border);
+      border-radius:18px;
       box-shadow:var(--shadow);
-      padding:10px 8px;
-      margin-bottom:10px;
+      padding:6px 3px;
+      margin-bottom:5px;
     }
     .board-wrap{
       width:100%;
       aspect-ratio:1 / 1;
-      max-width:min(92vw,720px);
+      max-width:min(76vw, 500px);
       margin:0 auto;
       position:relative;
       touch-action:manipulation;
@@ -146,47 +134,40 @@
       width:100%;
       height:100%;
       display:block;
-      border-radius:16px;
+      border-radius:15px;
       background:linear-gradient(135deg, var(--board), var(--board-dark));
     }
     .bottom{
       display:grid;
-      grid-template-columns:.8fr 1.2fr;
-      gap:10px;
-      align-items:start;
+      grid-template-columns:.9fr 1.1fr;
+      gap:5px;
+      align-items:stretch;
     }
     .resultBox{
-      min-height:100px;
-      border-radius:16px;
+      min-height:36px;
+      border-radius:13px;
       border:1px solid #ddd4c4;
-      background:linear-gradient(180deg,#fffdf8,#f1eadc);
+      background:#fffdf8;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-weight:900;
-      font-size:34px;
-      color:#382d1e;
-      padding:14px 16px;
       text-align:center;
-      letter-spacing:.03em;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
-    }
-    .hidden{display:none}
-    input[type=file]{display:none}
-    @media (max-width: 860px){
-      .top{grid-template-columns:1fr 1fr 1fr;}
+      font-weight:900;
+      font-size:24px;
+      color:#382d1e;
+      padding:8px 10px;
+      letter-spacing:.02em;
     }
     @media (max-width: 640px){
-      .app{padding:6px}
-      .top,.bottom{gap:6px}
-      .top{grid-template-columns:1.25fr .95fr .95fr;}
-      .titleBox{min-height:86px;padding:12px 14px}
-      .appTitle{font-size:clamp(18px,7vw,34px);padding:8px 12px;gap:6px}
-      button{min-height:42px;font-size:15px;border-radius:12px}
-      .label{min-height:28px;border-radius:12px;font-size:14px}
-      .boardCard{padding:8px 4px}
-      .board-wrap{max-width:min(98vw, 560px);}
-      .resultBox{font-size:26px; min-height:84px;}
+      .app{padding:3px}
+      .top,.bottom{gap:4px}
+      .top{grid-template-columns:1.14fr .83fr .83fr}
+      .card,.boardCard{border-radius:16px}
+      .titleBox{min-height:66px;padding:7px 8px}
+      .appTitle{font-size:clamp(15px,6vw,26px);padding:6px 8px;gap:4px}
+      .board-wrap{max-width:74vw}
+      button{min-height:34px;font-size:13px;border-radius:12px}
+      .resultBox{min-height:34px;font-size:20px}
     }
   </style>
 </head>
@@ -205,7 +186,6 @@
     </div>
 
     <div class="card stack">
-      <div class="label">着手</div>
       <button class="btnPlain" id="undoBtn">一手戻る</button>
       <button class="btnPlain" id="deadModeBtn">死石選択</button>
     </div>
@@ -237,6 +217,7 @@
   const canvas = document.getElementById('boardCanvas');
   const ctx = canvas.getContext('2d');
   const resultBox = document.getElementById('resultBox');
+  const deadModeBtn = document.getElementById('deadModeBtn');
 
   const state = {
     initialBoard: createEmptyBoard(),
@@ -258,8 +239,10 @@
   function inBounds(x, y) { return x >= 0 && x < SIZE && y >= 0 && y < SIZE; }
   function other(color) { return color === BLACK ? WHITE : BLACK; }
   function stoneKey(x, y) { return `${x},${y}`; }
-  function parseStoneKey(key) { const [x, y] = key.split(',').map(Number); return { x, y }; }
-
+  function parseStoneKey(key) {
+    const [x, y] = key.split(',').map(Number);
+    return { x, y };
+  }
   function neighbors(x, y) {
     return [[x+1,y],[x-1,y],[x,y+1],[x,y-1]].filter(([nx,ny]) => inBounds(nx,ny));
   }
@@ -292,8 +275,8 @@
   }
 
   function placeStone(x, y) {
-    if (!inBounds(x, y)) return { ok: false, message: '範囲外です。' };
-    if (state.board[y][x] !== EMPTY) return { ok: false, message: 'その点には打てません。' };
+    if (!inBounds(x, y)) return;
+    if (state.board[y][x] !== EMPTY) return;
 
     const beforeBoard = cloneBoard(state.board);
     const beforeToMove = state.toMove;
@@ -312,14 +295,10 @@
     }
 
     const selfInfo = groupAndLiberties(board, x, y);
-    if (!selfInfo || selfInfo.liberties.size === 0) {
-      return { ok: false, message: '自殺手です。' };
-    }
+    if (!selfInfo || selfInfo.liberties.size === 0) return;
 
     const newKey = boardKey(board);
-    if (prevKey && newKey === prevKey) {
-      return { ok: false, message: 'コウです。すぐには抜き返せません。' };
-    }
+    if (prevKey && newKey === prevKey) return;
 
     state.moveHistory.push({
       beforeBoard,
@@ -332,8 +311,10 @@
     state.lastMoveColor = state.toMove;
     state.toMove = other(state.toMove);
     state.deadStones.clear();
+    if (state.currentProblemNo) {
+      resultBox.textContent = `問題 ${String(state.currentProblemNo).padStart(3, '0')}`;
+    }
     draw();
-    return { ok: true, message: '着手しました。' };
   }
 
   function undo() {
@@ -343,7 +324,10 @@
     state.toMove = last.beforeToMove;
     state.deadStones.clear();
     state.mode = MODE_NORMAL;
-    state.lastMoveColor = state.moveHistory.length ? (state.moveHistory[state.moveHistory.length - 1].beforeToMove === BLACK ? WHITE : BLACK) : null;
+    deadModeBtn.classList.remove('btnActive');
+    state.lastMoveColor = state.moveHistory.length
+      ? (state.moveHistory[state.moveHistory.length - 1].beforeToMove === BLACK ? WHITE : BLACK)
+      : null;
     draw();
   }
 
@@ -356,9 +340,9 @@
     draw();
   }
 
-
   function scoreGame() {
     const board = cloneBoard(state.board);
+
     for (const k of state.deadStones) {
       const { x, y } = parseStoneKey(k);
       board[y][x] = EMPTY;
@@ -420,6 +404,7 @@
     let verdict = '持碁';
     if (diff > 0) verdict = `黒 ${diff}目勝ち`;
     else if (diff < 0) verdict = `白 ${Math.abs(diff)}目勝ち`;
+
     resultBox.textContent = verdict;
   }
 
@@ -473,9 +458,7 @@
 
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        const grad = stone === BLACK
-          ? ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r)
-          : ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r);
+        const grad = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r);
 
         if (stone === BLACK) {
           grad.addColorStop(0, '#555');
@@ -550,10 +533,6 @@
     return { x: coord.charCodeAt(0) - 97, y: coord.charCodeAt(1) - 97 };
   }
 
-  function xyToSgfCoord(x, y) {
-    return String.fromCharCode(97 + x) + String.fromCharCode(97 + y);
-  }
-
   function loadSgfText(text) {
     const board = createEmptyBoard();
     const abMatches = [...text.matchAll(/AB((\[[a-i]{2}\])+)/g)];
@@ -578,11 +557,9 @@
     state.mode = MODE_NORMAL;
     state.deadStones.clear();
     state.lastMoveColor = null;
+    deadModeBtn.classList.remove('btnActive');
     draw();
   }
-
-
-
 
   async function loadProblem(no) {
     const num = String(no).padStart(3, '0');
@@ -606,14 +583,20 @@
   document.getElementById('loadRandomBtn').addEventListener('click', () => {
     loadProblem(randomProblemNo());
   });
+
   document.getElementById('undoBtn').addEventListener('click', undo);
-  document.getElementById('deadModeBtn').addEventListener('click', () => {
+
+  deadModeBtn.addEventListener('click', () => {
     state.mode = state.mode === MODE_DEAD ? MODE_NORMAL : MODE_DEAD;
+    deadModeBtn.classList.toggle('btnActive', state.mode === MODE_DEAD);
   });
+
   document.getElementById('scoreBtn').addEventListener('click', scoreGame);
+
   canvas.addEventListener('click', handleBoardTap);
   canvas.addEventListener('touchstart', handleBoardTap, { passive: false });
   window.addEventListener('resize', draw);
+
   draw();
 })();
 </script>
