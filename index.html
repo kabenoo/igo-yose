@@ -17,11 +17,10 @@
       --green1:#49ab64;
       --green2:#369852;
       --plain:#e8dfcf;
-      --danger1:#d85a4f;
-      --danger2:#c93d32;
+      --deadBg:#dff3fb;
       --shadow:0 2px 10px rgba(0,0,0,.08);
     }
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
@@ -80,7 +79,13 @@
     .titleGreen{ background-image:linear-gradient(180deg,#35a960 0%,#168149 55%,#0b6c3a 100%); }
     .titleBlue{ background-image:linear-gradient(180deg,#4f8cff 0%,#2f65dd 55%,#1f4fb8 100%); }
     .titleRed{ background-image:linear-gradient(180deg,#ff6f68 0%,#df433d 55%,#c52f2a 100%); }
-
+    .customTitleImg{
+      display:none;
+      max-width:min(92vw, 520px);
+      width:100%;
+      height:auto;
+      object-fit:contain;
+    }
     .boardCard{
       padding:0;
       margin-bottom:4px;
@@ -101,7 +106,6 @@
       border-radius:15px;
       background:linear-gradient(135deg, var(--board), var(--board-dark));
     }
-
     .bottomCard{
       padding:4px;
     }
@@ -139,9 +143,19 @@
       background:linear-gradient(180deg,var(--green1),var(--green2));
       color:#fff;
     }
+    .btnDead{
+      background:var(--deadBg);
+      color:#111;
+    }
     .btnActive{
       outline:3px solid rgba(211,56,56,.20);
       background:#efe3d5;
+    }
+    .btnDead.btnActive{
+      background:#cbeaf7;
+    }
+    #loadRandomBtn{
+      min-height:80px;
     }
     .resultBox{
       min-height:80px;
@@ -159,16 +173,17 @@
       letter-spacing:.02em;
       white-space:nowrap;
     }
-
     @media (min-width: 641px){
       .app{ max-width:760px; padding:6px; }
       .titleCard{ min-height:68px; margin-bottom:6px; }
       .titleWrap{ font-size:32px; padding:6px 14px 8px; }
+      .customTitleImg{ max-width:560px; }
       .boardCard{ margin-bottom:6px; }
       .board-wrap{ max-width:min(92vw, 620px); }
       .bottomCard{ padding:6px; }
       .bottomGrid{ gap:6px; }
       button{ min-height:42px; font-size:15px; border-radius:14px; }
+      #loadRandomBtn{ min-height:90px; }
       .resultBox{ min-height:90px; font-size:28px; border-radius:14px; }
     }
   </style>
@@ -176,11 +191,12 @@
 <body>
 <div class="app">
   <div class="titleCard">
-    <div class="titleWrap">
+    <div class="titleWrap" id="titleWrap">
       <span class="titleGreen">囲碁</span>
       <span class="titleBlue">ヨセ</span>
       <span class="titleRed">トレ</span>
     </div>
+    <img id="customTitleImg" class="customTitleImg" src="title.png" alt="囲碁ヨセトレ">
   </div>
 
   <div class="boardCard">
@@ -192,7 +208,7 @@
   <div class="bottomCard">
     <div class="bottomGrid">
       <div class="stack">
-        <button class="btnPlain" id="deadModeBtn">死活確定</button>
+        <button class="btnDead" id="deadModeBtn">死活確定</button>
         <button class="btnPlain" id="undoBtn">一手戻る</button>
       </div>
 
@@ -256,6 +272,7 @@
     const visited = new Set([stoneKey(x, y)]);
     const group = [];
     const liberties = new Set();
+
     while (stack.length) {
       const [cx, cy] = stack.pop();
       group.push([cx, cy]);
@@ -309,10 +326,12 @@
       x, y,
       type: 'move'
     });
+
     state.board = board;
     state.lastMoveColor = state.toMove;
     state.toMove = other(state.toMove);
     state.deadStones.clear();
+
     if (state.currentProblemNo) {
       resultBox.textContent = `問題 ${String(state.currentProblemNo).padStart(3, '0')}`;
     }
@@ -322,14 +341,17 @@
   function undo() {
     const last = state.moveHistory.pop();
     if (!last) return;
+
     state.board = cloneBoard(last.beforeBoard);
     state.toMove = last.beforeToMove;
     state.deadStones.clear();
     state.mode = MODE_NORMAL;
     deadModeBtn.classList.remove('btnActive');
+
     state.lastMoveColor = state.moveHistory.length
       ? (state.moveHistory[state.moveHistory.length - 1].beforeToMove === BLACK ? WHITE : BLACK)
       : null;
+
     draw();
   }
 
@@ -341,6 +363,7 @@
     state.deadStones.clear();
     state.lastMoveColor = null;
     deadModeBtn.classList.remove('btnActive');
+
     if (state.currentProblemNo) {
       resultBox.textContent = `問題 ${String(state.currentProblemNo).padStart(3, '0')}`;
     } else {
@@ -352,9 +375,11 @@
   function toggleDeadStone(x, y) {
     const stone = state.board[y][x];
     if (stone === EMPTY) return;
+
     const k = stoneKey(x, y);
     if (state.deadStones.has(k)) state.deadStones.delete(k);
     else state.deadStones.add(k);
+
     draw();
   }
 
@@ -392,6 +417,7 @@
           for (const [nx, ny] of neighbors(cx, cy)) {
             const v = board[ny][nx];
             const nk = stoneKey(nx, ny);
+
             if (v === EMPTY) {
               if (!visited.has(nk)) {
                 visited.add(nk);
@@ -440,12 +466,15 @@
 
     ctx.strokeStyle = '#2d2418';
     ctx.lineWidth = Math.max(2, w / 350);
+
     for (let i = 0; i < SIZE; i++) {
       const p = margin + i * span;
+
       ctx.beginPath();
       ctx.moveTo(margin, p);
       ctx.lineTo(w - margin, p);
       ctx.stroke();
+
       ctx.beginPath();
       ctx.moveTo(p, margin);
       ctx.lineTo(p, h - margin);
@@ -470,14 +499,15 @@
       for (let x = 0; x < SIZE; x++) {
         const stone = state.board[y][x];
         if (stone === EMPTY) continue;
+
         const cx = margin + x * span;
         const cy = margin + y * span;
         const r = span * 0.43;
 
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        const grad = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r);
 
+        const grad = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r);
         if (stone === BLACK) {
           grad.addColorStop(0, '#555');
           grad.addColorStop(1, '#000');
@@ -485,6 +515,7 @@
           grad.addColorStop(0, '#fff');
           grad.addColorStop(1, '#d9d9d9');
         }
+
         ctx.fillStyle = grad;
         ctx.fill();
         ctx.strokeStyle = 'rgba(0,0,0,.25)';
@@ -510,6 +541,7 @@
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     const width = Math.round(rect.width * dpr);
     const height = Math.round(rect.height * dpr);
+
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
@@ -522,15 +554,19 @@
     const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
     const x = clientX - rect.left;
     const y = clientY - rect.top;
+
     const margin = rect.width * 0.085;
     const span = (rect.width - margin * 2) / (SIZE - 1);
     const ix = Math.round((x - margin) / span);
     const iy = Math.round((y - margin) / span);
+
     if (!inBounds(ix, iy)) return null;
+
     const cx = margin + ix * span;
     const cy = margin + iy * span;
     const dist = Math.hypot(x - cx, y - cy);
     if (dist > span * 0.52) return null;
+
     return { x: ix, y: iy };
   }
 
@@ -543,6 +579,7 @@
       toggleDeadStone(p.x, p.y);
       return;
     }
+
     placeStone(p.x, p.y);
   }
 
@@ -553,8 +590,9 @@
 
   function loadSgfText(text) {
     const board = createEmptyBoard();
-    const abMatches = [...text.matchAll(/AB((\[[a-i]{2}\])+)/g)];
-    const awMatches = [...text.matchAll(/AW((\[[a-i]{2}\])+)/g)];
+
+    const abMatches = [...text.matchAll(/AB((?:\[[a-i]{2}\])+)/g)];
+    const awMatches = [...text.matchAll(/AW((?:\[[a-i]{2}\])+)/g)];
 
     const parseMulti = (matches, color) => {
       for (const m of matches) {
@@ -565,6 +603,7 @@
         }
       }
     };
+
     parseMulti(abMatches, BLACK);
     parseMulti(awMatches, WHITE);
 
@@ -576,14 +615,17 @@
     state.deadStones.clear();
     state.lastMoveColor = null;
     deadModeBtn.classList.remove('btnActive');
+
     draw();
   }
 
   async function loadProblem(no) {
     const num = String(no).padStart(3, '0');
+
     try {
       const res = await fetch(`sgf/${num}.sgf`, { cache: 'no-store' });
       if (!res.ok) throw new Error('not found');
+
       const text = await res.text();
       state.currentProblemNo = parseInt(num, 10);
       loadSgfText(text);
@@ -615,6 +657,19 @@
   canvas.addEventListener('click', handleBoardTap);
   canvas.addEventListener('touchstart', handleBoardTap, { passive: false });
   window.addEventListener('resize', draw);
+
+  const customTitleImg = document.getElementById('customTitleImg');
+  const titleWrap = document.getElementById('titleWrap');
+
+  customTitleImg.addEventListener('load', () => {
+    titleWrap.style.display = 'none';
+    customTitleImg.style.display = 'block';
+  });
+
+  customTitleImg.addEventListener('error', () => {
+    customTitleImg.style.display = 'none';
+    titleWrap.style.display = 'flex';
+  });
 
   draw();
 })();
