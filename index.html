@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>囲碁ヨセトレ</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png?v=3">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
+  <meta name="apple-mobile-web-app-title" content="囲碁ヨセトレ">
+  <meta name="theme-color" content="#e8efd9">
   <style>
     :root{
       --ink:#2c180f;
@@ -118,15 +122,23 @@
     }
     .btnActive{outline:4px solid rgba(214,111,137,.28);background:linear-gradient(145deg,#fbe8ee,#fff)}
     .btnDead.btnActive{background:linear-gradient(145deg,#e8f5ee,#cfead9)}
-    .problemRow{display:grid;grid-template-columns:minmax(76px,.82fr) minmax(0,1.55fr);gap:7px;align-items:stretch}
+    .problemRow{
+      grid-column:1 / -1;
+      display:grid;
+      grid-template-columns:1fr 1fr 1.55fr;
+      gap:7px;
+      align-items:stretch;
+      margin-top:1px
+    }
+    .problemSpacer{min-height:1px}
     .problemBadge{
-      min-height:100px;border-radius:22px;border:2px solid rgba(188,145,87,.62);
+      min-height:76px;border-radius:22px;border:2px solid rgba(188,145,87,.62);
       background:linear-gradient(145deg,#fffdf7,#f5ead3);display:flex;align-items:center;justify-content:center;
       text-align:center;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-weight:900;
       font-size:clamp(14px,3.7vw,20px);line-height:1.2;color:#342117;padding:8px 6px;white-space:nowrap;
       box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 4px 10px rgba(80,50,25,.12)
     }
-    #loadRandomBtn{min-height:100px;font-size:clamp(17px,4.5vw,26px);border-radius:22px;white-space:nowrap}
+    #loadRandomBtn{min-height:76px;font-size:clamp(17px,4.5vw,26px);border-radius:22px;white-space:nowrap}
     .resultBox{
       min-height:100px;border-radius:22px;border:2px solid #d6b5bc;
       background:linear-gradient(145deg,#fff8fb,#f7dfe7);display:flex;align-items:center;justify-content:center;
@@ -145,8 +157,8 @@
       .titleCard::before,.titleCard::after{font-size:25px}.boardCard{padding:6px;margin-bottom:5px;border-radius:17px}
       .boardCard::before{font-size:12px;margin:-3px 0 2px}.bottomCard{padding:5px;border-radius:17px}
       .bottomGrid,.stack,.problemRow{gap:4px}button{min-height:40px;border-radius:13px;font-size:clamp(11px,3vw,15px)}
-      .problemBadge,#loadRandomBtn{min-height:84px;border-radius:15px}.problemBadge{font-size:clamp(12px,3.2vw,16px);padding:5px 3px}
-      #loadRandomBtn{font-size:clamp(15px,4vw,21px)}
+      .problemBadge,#loadRandomBtn{min-height:68px;border-radius:15px}.problemBadge{font-size:clamp(12px,3.1vw,16px);padding:5px 2px}
+      #loadRandomBtn{font-size:clamp(15px,4vw,21px);padding-left:4px;padding-right:4px}
       .resultBox{min-height:84px;border-radius:15px}.tagline{margin-top:5px;padding:9px 5px;border-radius:13px}
     }
   </style>
@@ -180,12 +192,12 @@
         <button class="btnPlain" id="resetBtn">初期画面</button>
       </div>
 
-      <div class="stack">
-        <div class="resultBox" id="resultBox">結　果</div>
-        <div class="problemRow">
-          <div class="problemBadge" id="problemBadge">問題 ---</div>
-          <button class="btnBlue" id="loadRandomBtn">問題読込</button>
-        </div>
+      <div class="resultBox" id="resultBox">結　果</div>
+
+      <div class="problemRow">
+        <div class="problemSpacer" aria-hidden="true"></div>
+        <div class="problemBadge" id="problemBadge">問題 ---</div>
+        <button class="btnBlue" id="loadRandomBtn">問題読込</button>
       </div>
     </div>
   </div>
