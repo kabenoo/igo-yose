@@ -161,9 +161,193 @@
       #loadRandomBtn{font-size:clamp(15px,4vw,21px);padding-left:4px;padding-right:4px}
       .resultBox{min-height:84px;border-radius:15px}.tagline{margin-top:5px;padding:9px 5px;border-radius:13px}
     }
+
+    .screen{display:none}
+    .screen.active{display:block}
+    .menuScreen{
+      min-height:100vh;
+      padding:18px 12px 28px;
+      background:
+        linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)),
+        repeating-linear-gradient(90deg,rgba(92,58,28,.07) 0 2px,transparent 2px 76px),
+        repeating-linear-gradient(0deg,rgba(92,58,28,.05) 0 2px,transparent 2px 76px),
+        linear-gradient(180deg,#ceb08b 0 20%,#eadbc2 20% 64%,#d7c296 64% 100%);
+    }
+    .menuRoom{
+      max-width:760px;margin:0 auto;position:relative;
+      border-radius:28px;padding:14px;
+      background:
+        linear-gradient(90deg,rgba(92,53,25,.85) 0 3%,transparent 3% 97%,rgba(92,53,25,.85) 97%),
+        linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,.12));
+      box-shadow:0 18px 44px rgba(69,39,17,.24),inset 0 0 0 3px rgba(255,255,255,.45)
+    }
+    .menuTitle{
+      border:3px solid #c8a75c;border-radius:24px;
+      background:
+        radial-gradient(ellipse at 15% 80%,rgba(195,205,195,.66),transparent 27%),
+        radial-gradient(ellipse at 85% 80%,rgba(195,205,195,.6),transparent 27%),
+        linear-gradient(180deg,#fff,#faf5e9);
+      padding:18px 10px;text-align:center;margin-bottom:14px;
+      font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+      font-weight:900;font-size:clamp(34px,9vw,58px);letter-spacing:.04em;
+      box-shadow:0 7px 18px rgba(67,38,17,.15),inset 0 0 0 3px rgba(255,255,255,.75)
+    }
+    .menuTitle::before,.menuTitle::after{content:"❀";color:#dfa0b1;font-size:.7em;margin:0 .28em}
+    .menuPanel{
+      border:2px solid #c7a568;border-radius:22px;background:rgba(255,252,244,.94);
+      padding:12px;margin-bottom:12px;
+      box-shadow:0 8px 18px rgba(70,42,22,.13),inset 0 0 0 3px rgba(255,255,255,.65)
+    }
+    .menuHeading{
+      display:inline-block;margin:-3px auto 10px;left:50%;transform:translateX(-50%);position:relative;
+      background:linear-gradient(180deg,#6f3c18,#4e2a14);color:#fff6e7;
+      border:2px solid #caa75c;border-radius:14px;padding:7px 22px;
+      font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-weight:900;
+      font-size:clamp(18px,5vw,28px);letter-spacing:.08em;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.35)
+    }
+    .choiceGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .choiceCard{
+      min-height:112px;background:linear-gradient(145deg,#fff,#f7efdf);color:#2f1c12;
+      border:2px solid #d0b176;border-radius:18px;padding:12px 8px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;white-space:normal
+    }
+    .choiceCard strong{font-size:clamp(18px,5vw,27px);margin-bottom:4px}
+    .choiceCard small{font-size:clamp(11px,3vw,15px);font-weight:600;line-height:1.4}
+    .choiceCard.selected{outline:5px solid rgba(177,50,56,.18);background:linear-gradient(145deg,#fff8f4,#f7e1dd)}
+    .choiceCard.selected::before{content:"✓";position:absolute}
+    .themeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .themeCard{
+      min-height:155px;border-radius:18px;border:2px solid #cfb077;padding:8px;
+      display:flex;flex-direction:column;justify-content:flex-end;
+      font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-weight:900;
+      white-space:normal;text-align:center;overflow:hidden
+    }
+    .themeCard span{background:rgba(255,255,255,.9);padding:8px;border-radius:11px;font-size:clamp(15px,4vw,22px)}
+    .themeSakura{
+      background:
+        radial-gradient(circle at 18% 22%,#f3bdcc 0 7%,transparent 8%),
+        radial-gradient(circle at 76% 28%,#f5cad5 0 6%,transparent 7%),
+        linear-gradient(145deg,#fff5f7,#dfe9d4);
+    }
+    .themeLuxury{
+      color:#f5e8ba;
+      background:
+        radial-gradient(circle at 20% 20%,rgba(255,210,83,.28),transparent 28%),
+        repeating-linear-gradient(45deg,rgba(218,177,68,.16) 0 2px,transparent 2px 18px),
+        linear-gradient(145deg,#21100b,#5b2918);
+    }
+    .themeCard.selected{outline:5px solid rgba(61,142,96,.25)}
+    .menuAction{
+      min-height:76px;margin-top:10px;font-size:clamp(25px,7vw,38px);
+      background:linear-gradient(180deg,#4b9565,#23623f);color:#fff;border-color:#cdb47d
+    }
+    .mypageButton{
+      min-height:68px;margin-top:10px;font-size:clamp(21px,6vw,32px);
+      background:linear-gradient(180deg,#a53f33,#77271f);color:#fff;border-color:#cdb47d
+    }
+    .menuNote{font-size:12px;text-align:center;margin-top:8px;color:#6b4a32}
+    .studyToolbar{
+      max-width:760px;margin:0 auto;padding:6px 10px 0;display:flex;justify-content:flex-end
+    }
+    .backMenuBtn{
+      width:auto;min-height:38px;padding:6px 14px;border-radius:13px;
+      background:linear-gradient(145deg,#fff,#f5ead7);font-size:14px
+    }
+    .numberModal,.mypageModal{
+      position:fixed;inset:0;z-index:50;background:rgba(25,16,10,.58);
+      display:none;align-items:center;justify-content:center;padding:14px
+    }
+    .numberModal.open,.mypageModal.open{display:flex}
+    .modalPanel{
+      width:min(680px,96vw);max-height:88vh;overflow:auto;
+      background:#fffaf0;border:3px solid #c7a568;border-radius:24px;padding:14px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35)
+    }
+    .modalPanel h2{margin:2px 0 12px;text-align:center;font-family:"Yu Mincho",serif}
+    .numberGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+    .numberBtn{min-height:48px;font-size:16px;background:#fff;border-radius:12px}
+    .modalClose{margin-top:12px;background:#7a4a2c;color:#fff}
+    .mypageSummary{
+      padding:18px;border-radius:18px;background:linear-gradient(145deg,#fff,#f4ead7);
+      text-align:center;font-size:20px;line-height:1.7
+    }
+    body.theme-luxury{
+      --ink:#f3e5bd;--cream:#21110d;--gold:#d8b24d;--gold-light:#f0d689;
+      --sakura:#6e301f;--sakura-deep:#c79c45;--green:#147f68;--green-dark:#0b5949;
+      --board:#d59742;--board-dark:#8e4e1e;
+      background:
+        repeating-linear-gradient(45deg,rgba(214,171,58,.07) 0 2px,transparent 2px 18px),
+        radial-gradient(circle at 50% 10%,rgba(255,190,60,.18),transparent 35%),
+        linear-gradient(180deg,#180b08,#3b160e);
+    }
+    body.theme-luxury .titleCard,
+    body.theme-luxury .bottomCard,
+    body.theme-luxury .tagline{background:rgba(34,16,12,.94);border-color:#d0a94a;color:#f4e3b3}
+    body.theme-luxury .titleCard{
+      background:
+        radial-gradient(circle at 18% 60%,rgba(14,135,104,.45),transparent 32%),
+        linear-gradient(180deg,#1d0e0b,#3f1c13);
+    }
+    body.theme-luxury .titleGreen{color:#7ed0a6;-webkit-text-fill-color:#7ed0a6}
+    body.theme-luxury .titleBlue{color:#9fc7ff;-webkit-text-fill-color:#9fc7ff}
+    body.theme-luxury .titleRed{color:#ff9588;-webkit-text-fill-color:#ff9588}
+    body.theme-luxury .bottomCard::after{display:none}
+    body.theme-luxury .btnPlain,
+    body.theme-luxury .btnDead{background:linear-gradient(145deg,#592315,#32130e);color:#f7df9d;border-color:#c69b3f}
+    body.theme-luxury .btnGreen,
+    body.theme-luxury .btnBlue{background:linear-gradient(145deg,#2ea88c,#116653);border-color:#d7b350}
+    body.theme-luxury .resultBox{background:linear-gradient(145deg,#eee,#bfbfbf);color:#21150e;border-color:#999}
+    body.theme-luxury .problemBadge{background:linear-gradient(145deg,#4b1d13,#2c100c);color:#f4dda0;border-color:#d4aa47}
+    body.theme-luxury .tagline::before,
+    body.theme-luxury .tagline::after{color:#d8b24d}
+    @media(max-width:480px){
+      .menuScreen{padding:8px 5px 18px}.menuRoom{padding:8px;border-radius:18px}
+      .menuTitle{padding:12px 4px;border-radius:16px;margin-bottom:8px}
+      .menuPanel{padding:8px;border-radius:16px;margin-bottom:8px}.menuHeading{padding:5px 12px}
+      .choiceGrid,.themeGrid{gap:6px}.choiceCard{min-height:90px;padding:8px 4px;border-radius:13px}
+      .themeCard{min-height:122px;border-radius:13px}.menuAction{min-height:60px}.mypageButton{min-height:54px}
+      .numberGrid{grid-template-columns:repeat(5,1fr);gap:5px}.numberBtn{min-height:42px;font-size:14px}
+    }
+
   </style>
 </head>
 <body>
+<section id="menuScreen" class="screen menuScreen active">
+  <div class="menuRoom">
+    <div class="menuTitle">囲碁ヨセトレ</div>
+
+    <div class="menuPanel">
+      <div class="menuHeading">出題方法を選択</div>
+      <div class="choiceGrid">
+        <button class="choiceCard selected" id="modeRandomBtn">
+          <strong>ランダム出題</strong>
+          <small>100問からランダムに出題します</small>
+        </button>
+        <button class="choiceCard" id="modeNumberBtn">
+          <strong>番号選択</strong>
+          <small>問題番号を選んで出題します</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="menuPanel">
+      <div class="menuHeading">学習画面を選択</div>
+      <div class="themeGrid">
+        <button class="themeCard themeSakura selected" id="themeSakuraBtn"><span>桜と和の画面</span></button>
+        <button class="themeCard themeLuxury" id="themeLuxuryBtn"><span>黒と金の画面</span></button>
+      </div>
+    </div>
+
+    <button class="menuAction" id="startLearningBtn">学習を始める</button>
+    <button class="mypageButton" id="openMypageBtn">マイページ</button>
+    <div class="menuNote">正解記録は正解判定機能を追加した後に表示します。</div>
+  </div>
+</section>
+
+<section id="studyScreen" class="screen">
+  <div class="studyToolbar"><button class="backMenuBtn" id="backMenuBtn">メニューに戻る</button></div>
 <div class="app">
   <div class="titleCard">
     <div class="titleWrap" id="titleWrap">
@@ -203,6 +387,23 @@
   </div>
 
   <div class="tagline">一目を笑うものは一目に泣く</div>
+</div>
+</section>
+
+<div class="numberModal" id="numberModal">
+  <div class="modalPanel">
+    <h2>問題番号を選択</h2>
+    <div class="numberGrid" id="numberGrid"></div>
+    <button class="modalClose" id="closeNumberModal">閉じる</button>
+  </div>
+</div>
+
+<div class="mypageModal" id="mypageModal">
+  <div class="modalPanel">
+    <h2>マイページ</h2>
+    <div class="mypageSummary">正解済み　0 / 100問<br>正解判定機能の追加後、ここに学習記録を表示します。</div>
+    <button class="modalClose" id="closeMypageModal">閉じる</button>
+  </div>
 </div>
 
 <script>
@@ -647,6 +848,106 @@
     customTitleImg.style.display = 'none';
     titleWrap.style.display = 'flex';
   });
+
+
+  const menuScreen = document.getElementById('menuScreen');
+  const studyScreen = document.getElementById('studyScreen');
+  const numberModal = document.getElementById('numberModal');
+  const mypageModal = document.getElementById('mypageModal');
+  const numberGrid = document.getElementById('numberGrid');
+
+  let selectedMode = 'random';
+  let selectedTheme = 'sakura';
+  let selectedProblemNo = 1;
+
+  function setSelected(buttons, activeButton) {
+    buttons.forEach(btn => btn.classList.toggle('selected', btn === activeButton));
+  }
+
+  function applyTheme(theme) {
+    selectedTheme = theme;
+    document.body.classList.toggle('theme-luxury', theme === 'luxury');
+  }
+
+  function showMenu() {
+    studyScreen.classList.remove('active');
+    menuScreen.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showStudy(problemNo) {
+    menuScreen.classList.remove('active');
+    studyScreen.classList.add('active');
+    requestAnimationFrame(() => {
+      draw();
+      if (problemNo) loadProblem(problemNo);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function buildNumberGrid() {
+    const frag = document.createDocumentFragment();
+    for (let i = 1; i <= 100; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'numberBtn';
+      btn.textContent = String(i).padStart(3, '0');
+      btn.addEventListener('click', () => {
+        selectedProblemNo = i;
+        numberModal.classList.remove('open');
+        showStudy(i);
+      });
+      frag.appendChild(btn);
+    }
+    numberGrid.appendChild(frag);
+  }
+
+  const modeButtons = [
+    document.getElementById('modeRandomBtn'),
+    document.getElementById('modeNumberBtn')
+  ];
+  modeButtons[0].addEventListener('click', () => {
+    selectedMode = 'random';
+    setSelected(modeButtons, modeButtons[0]);
+  });
+  modeButtons[1].addEventListener('click', () => {
+    selectedMode = 'number';
+    setSelected(modeButtons, modeButtons[1]);
+  });
+
+  const themeButtons = [
+    document.getElementById('themeSakuraBtn'),
+    document.getElementById('themeLuxuryBtn')
+  ];
+  themeButtons[0].addEventListener('click', () => {
+    applyTheme('sakura');
+    setSelected(themeButtons, themeButtons[0]);
+  });
+  themeButtons[1].addEventListener('click', () => {
+    applyTheme('luxury');
+    setSelected(themeButtons, themeButtons[1]);
+  });
+
+  document.getElementById('startLearningBtn').addEventListener('click', () => {
+    if (selectedMode === 'number') {
+      numberModal.classList.add('open');
+    } else {
+      showStudy(randomProblemNo());
+    }
+  });
+
+  document.getElementById('backMenuBtn').addEventListener('click', showMenu);
+  document.getElementById('closeNumberModal').addEventListener('click', () => numberModal.classList.remove('open'));
+  document.getElementById('openMypageBtn').addEventListener('click', () => mypageModal.classList.add('open'));
+  document.getElementById('closeMypageModal').addEventListener('click', () => mypageModal.classList.remove('open'));
+
+  numberModal.addEventListener('click', (e) => {
+    if (e.target === numberModal) numberModal.classList.remove('open');
+  });
+  mypageModal.addEventListener('click', (e) => {
+    if (e.target === mypageModal) mypageModal.classList.remove('open');
+  });
+
+  buildNumberGrid();
 
   draw();
 })();
